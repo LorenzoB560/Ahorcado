@@ -3,9 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Ahorcado</title>
+    <link rel="stylesheet" href="/css/estilos.css">
 </head>
 <body>
     <h1>Juego del ahorcado</h1>
-    <p>Hola</p>
+    <form action="/guardar-ahorcado" method="post" th:object="${datos}">
+        <h2>Palabra:</h2>
+        <div th:text="${datos.getPalabraAdivinar()}"></div>
+
+        <label for="letra">Letra a introducir:</label>
+        <input type="text" name="letra" id="letra" th:field="*{ultimaLetra}"></input>
+        <div th:each="error : ${#fields.errors('ultimaLetra')}" th:text="${error}" class="error"></div>
+        <p th:text="${letraRepetida}" class="error"></p>
+
+        <br> <br>
+        <fieldset>
+            <p>Palabra oculta: <strong><span th:text="${datos.getPalabraOculta()}"></span></strong></p>
+            <p>Ultima letra recibida: <span th:text="${datos.getUltimaLetra()}"></span></p>
+            <p>Letras ya probadas: <span th:text="${datos.getLetrasProbadas().toString()}"></span></p>
+            <p>Número de intentos: <span th:text="${datos.getNumeroIntentos()}"></span></p>
+            <p>Numero de intentos fallidos que quedan: <span th:text="${datos.getIntentosRestantes()}"></span></p>
+
+        </fieldset>
+        <input type="submit"></input>
+    </form>
 </body>
 </html>
