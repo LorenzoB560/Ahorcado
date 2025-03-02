@@ -2,19 +2,17 @@ package com.lbodaszsservidor.ahorcado;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.apache.coyote.Request;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class PrincipalController {
@@ -62,22 +60,32 @@ public class PrincipalController {
 
         actualizarDatos(datosSesion, datosFormulario);
 
-        actualizarIntentos(datosSesion, datosFormulario);
-
+        actualizarIntentos(datosSesion, datosFormulario, model);
 
         if (unirPalabra(datosFormulario).equals(datosFormulario.getPalabraOculta())){
             String mensajeVictoria = "¡Enhorabuena! ¡Has ganado! ¿Quieres volver a jugar?";
             model.addAttribute("mensajeVictoria", mensajeVictoria);
+            model.addAttribute("volverJugar", "Volver a jugar");
+            return "ahorcado";
+        } else if(datosFormulario.getIntentosRestantes() == 0){
+            String mensajeDerrota = "Qué mal, has perdido. ¿Quieres volver a jugar?";
+            model.addAttribute("mensajeDerrota", mensajeDerrota);
+            model.addAttribute("volverJugar", "Volver a jugar");
             return "ahorcado";
         }
 
-        //Evitar que se repinte la ultima letra puesta en el campo de texto
-        datosFormulario.setUltimaLetra("");
 
 
         session.setAttribute("datos", datosFormulario);
         return "redirect:/ahorcado";
     }
+
+    @GetMapping("/volver-jugar")
+    public String volverJugar(HttpSession session) {
+        session.invalidate();
+        return "redirect:/ahorcado";
+    }
+
     private void actualizarDatos(Datos sesionVieja, Datos sesionNueva) {
         if (sesionVieja == null) {
             sesionVieja = new Datos(); // Se crea una nueva instancia si la sesión ha expirado
@@ -105,7 +113,9 @@ public class PrincipalController {
         sesionNueva.setIntentosRestantes(sesionVieja.getIntentosRestantes());
 
     }
-    public void actualizarIntentos(Datos sesionVieja, Datos sesionNueva) {
+    private void actualizarIntentos(Datos sesionVieja, Datos sesionNueva, Model model) {
+        Map<String, Object> datos = new HashMap<>();
+
         int intentos = sesionVieja.getNumeroIntentos();
         sesionNueva.setNumeroIntentos(intentos >= 0 ? intentos + 1 : intentos);
 
@@ -116,9 +126,7 @@ public class PrincipalController {
             sesionNueva.setIntentosRestantes(sesionVieja.getIntentosRestantes());
         }
     }
-
-
-    public static String construccionPalabra(String palabraOculta, String palabraAdivinar, String letra) {
+    private String construccionPalabra(String palabraOculta, String palabraAdivinar, String letra) {
         if (letra == null || letra.isEmpty()) {
             return palabraAdivinar; // Si no hay letra, devolvemos la palabra tal cual está
         }
@@ -156,8 +164,7 @@ public class PrincipalController {
 
         return new String(palabraActual);
     }
-
-    public static String unirPalabra(Datos datosFormulario){
+    private String unirPalabra(Datos datosFormulario){
         char[] palabraDividida = datosFormulario.getPalabraAdivinar().toCharArray();
         return new String(palabraDividida).replaceAll(" ", "");
     }

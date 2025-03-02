@@ -18,7 +18,7 @@ public class Datos {
         setPalabraAdivinar("_ ".repeat(getPalabraOculta().length()));
         setLetrasProbadas(new ArrayList<>());
         setNumeroIntentos(0);
-        setIntentosRestantes(7);
+        setIntentosRestantes(6);
     }
 
     private String palabraOculta;
@@ -33,7 +33,7 @@ public class Datos {
     private int intentosRestantes;
 
     public String devolverPalabra(){
-        final String API_URL = "http://localhost:9999/palabra-random";
+            final String API_URL = "http://localhost:9999/palabra-random";
 
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(API_URL, String.class);

@@ -12,11 +12,20 @@
         <div th:text="${datos.getPalabraAdivinar()}"></div>
 
         <label for="letra">Letra a introducir:</label>
-        <input type="text" name="letra" id="letra" th:field="*{ultimaLetra}"></input>
+
+        <input type="text" name="letra" id="letra"
+               th:field="*{ultimaLetra}"
+               th:if="${mensajeVictoria == null and mensajeDerrota == null}">
+
+
         <div th:each="error : ${#fields.errors('ultimaLetra')}" th:text="${error}" class="error"></div>
         <p th:text="${letraRepetida}" class="error"></p>
         <p th:text="${mensajeVictoria}" class="success"></p>
+        <p th:text="${mensajeDerrota}" class="error"></p>
+        <a th:text="${volverJugar}" href="volver-jugar"></a>
 
+        <img src="/img/ahorcado.jpg" class="ahorcado"
+             th:style="|object-position: calc((${datos.getIntentosRestantes()} * -78px)) 0; width: 78px; height: 92px; object-fit: none;|" alt="Ahorcado">
         <br> <br>
         <fieldset>
             <p>Palabra oculta: <strong><span th:text="${datos.getPalabraOculta()}"></span></strong></p>

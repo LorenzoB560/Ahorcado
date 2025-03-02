@@ -6,3 +6,12 @@
     color: limegreen;
     font-weight: bold;
 }
+.recorte {
+    width: 100px;  /* Ancho del recorte */
+    height: 300px; /* Alto del recorte */
+    object-fit: none;
+    overflow: hidden;
+}
+
+
+
