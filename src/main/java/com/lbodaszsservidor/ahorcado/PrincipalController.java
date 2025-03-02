@@ -27,11 +27,7 @@ public class PrincipalController {
             datos = new Datos();
             session.setAttribute("datos", datos);
         }
-
-
-
         model.addAttribute("datos", datos);
-
         return "ahorcado";
     }
 
@@ -42,22 +38,21 @@ public class PrincipalController {
                                   Model model) {
 
         Datos datosSesion = (Datos) session.getAttribute("datos");
-
         if (datosSesion == null) {
             return "redirect:/ahorcado";
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("datos", datosFormulario);
             actualizarDatos(datosSesion, datosFormulario);
+            datosFormulario.setNumeroIntentos(datosSesion.getNumeroIntentos());
             return "ahorcado";
         }
 
 
-        if (datosSesion.getLetrasProbadas().contains(datosFormulario.getUltimaLetra())) {
+        if (datosSesion.getLetrasProbadas().contains(datosFormulario.getUltimaLetra().toLowerCase())) {
             model.addAttribute("letraRepetida", "Esta letra ya ha sido introducida. Elija otra.");
-            model.addAttribute("datos", datosFormulario);
             actualizarDatos(datosSesion, datosFormulario);
+
             return "ahorcado";
         }
 
@@ -67,6 +62,17 @@ public class PrincipalController {
 
         actualizarDatos(datosSesion, datosFormulario);
 
+        actualizarIntentos(datosSesion, datosFormulario);
+
+
+        if (unirPalabra(datosFormulario).equals(datosFormulario.getPalabraOculta())){
+            String mensajeVictoria = "¡Enhorabuena! ¡Has ganado! ¿Quieres volver a jugar?";
+            model.addAttribute("mensajeVictoria", mensajeVictoria);
+            return "ahorcado";
+        }
+
+        //Evitar que se repinte la ultima letra puesta en el campo de texto
+        datosFormulario.setUltimaLetra("");
 
 
         session.setAttribute("datos", datosFormulario);
@@ -95,7 +101,22 @@ public class PrincipalController {
         }
         sesionNueva.setLetrasProbadas(lista);
 
+        sesionNueva.setNumeroIntentos(sesionVieja.getNumeroIntentos());
+        sesionNueva.setIntentosRestantes(sesionVieja.getIntentosRestantes());
+
     }
+    public void actualizarIntentos(Datos sesionVieja, Datos sesionNueva) {
+        int intentos = sesionVieja.getNumeroIntentos();
+        sesionNueva.setNumeroIntentos(intentos >= 0 ? intentos + 1 : intentos);
+
+
+        if (!sesionVieja.getPalabraOculta().contains(sesionNueva.getUltimaLetra().toLowerCase())) {
+            sesionNueva.setIntentosRestantes(sesionVieja.getIntentosRestantes() >= 0 ? sesionVieja.getIntentosRestantes() - 1 : intentos);
+        } else{
+            sesionNueva.setIntentosRestantes(sesionVieja.getIntentosRestantes());
+        }
+    }
+
 
     public static String construccionPalabra(String palabraOculta, String palabraAdivinar, String letra) {
         if (letra == null || letra.isEmpty()) {
@@ -134,5 +155,10 @@ public class PrincipalController {
         }
 
         return new String(palabraActual);
+    }
+
+    public static String unirPalabra(Datos datosFormulario){
+        char[] palabraDividida = datosFormulario.getPalabraAdivinar().toCharArray();
+        return new String(palabraDividida).replaceAll(" ", "");
     }
 }

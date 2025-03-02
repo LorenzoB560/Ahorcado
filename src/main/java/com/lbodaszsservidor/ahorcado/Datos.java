@@ -14,10 +14,10 @@ import java.util.ArrayList;
 public class Datos {
 
     public Datos(){
-        setPalabraOculta("polla de mono");
-        setPalabraAdivinar(ocultarPalabra());
+        setPalabraOculta(devolverPalabra());
+        setPalabraAdivinar("_ ".repeat(getPalabraOculta().length()));
         setLetrasProbadas(new ArrayList<>());
-        setNumeroIntentos(1);
+        setNumeroIntentos(0);
         setIntentosRestantes(7);
     }
 
@@ -33,27 +33,11 @@ public class Datos {
     private int intentosRestantes;
 
     public String devolverPalabra(){
-        final String API_URL = "http://localhost:9090/palabra-random";
+        final String API_URL = "http://localhost:9999/palabra-random";
 
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(API_URL, String.class);
     }
 
-    public String ocultarPalabra(){
 
-        String palabraOculta = getPalabraOculta();
-
-// Dividimos por espacios y reemplazamos cada palabra por "_ "
-        String[] palabras = palabraOculta.split(" ");
-        StringBuilder resultado = new StringBuilder();
-
-        for (String palabra : palabras) {
-            resultado.append("_ ".repeat(palabra.length())).append("  "); // Espacio extra entre palabras
-        }
-
-// Eliminamos el último espacio extra al final y retornamos
-        return resultado.toString().trim();
-
-
-    }
 }

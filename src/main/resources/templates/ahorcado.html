@@ -15,6 +15,7 @@
         <input type="text" name="letra" id="letra" th:field="*{ultimaLetra}"></input>
         <div th:each="error : ${#fields.errors('ultimaLetra')}" th:text="${error}" class="error"></div>
         <p th:text="${letraRepetida}" class="error"></p>
+        <p th:text="${mensajeVictoria}" class="success"></p>
 
         <br> <br>
         <fieldset>
