@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 @Controller
@@ -21,6 +19,7 @@ public class PrincipalController {
     @GetMapping("/ahorcado")
     public String devuelveAhorcado(HttpSession session, Model model) {
 
+        //Creo la sesión si no hay, y posteriormente la añado al modelo.
         Datos datos = (Datos) session.getAttribute("datos");
         if (datos == null) {
             datos = new Datos();
@@ -37,43 +36,47 @@ public class PrincipalController {
                                   Model model) {
 
         Datos datosSesion = (Datos) session.getAttribute("datos");
+        //Obtengo los datos de la sesión, y si no existe sesión, lo redirijo a /ahorcado
+        // para crearla
         if (datosSesion == null) {
             return "redirect:/ahorcado";
         }
 
+        //Comprobración de que el input sólo tenga una letra
         if (bindingResult.hasErrors()) {
             actualizarDatos(datosSesion, datosFormulario);
             datosFormulario.setNumeroIntentos(datosSesion.getNumeroIntentos());
             return "ahorcado";
         }
 
-
+        //Comprobración de si se ha puesto una letra por segunda vez. Mira en la lista si la contiene,
+        // obtieniendo la letra de datos formulario, pasándola a lower case y quitándole los acentos.
         if (datosSesion.getLetrasProbadas().contains(quitarAcentos(datosFormulario.getUltimaLetra().toLowerCase()))) {
             model.addAttribute("letraRepetida", "Esta letra ya ha sido introducida. Elija otra.");
             actualizarDatos(datosSesion, datosFormulario);
             return "ahorcado";
         }
 
+        //Compruebo de que sea una letra válida, y no otro tipo de carácter.
         if (!validarLetra(datosFormulario.getUltimaLetra())) {
             model.addAttribute("formatoIncorrecto", "Valor introducido no válido");
             actualizarDatos(datosSesion, datosFormulario);
             return "ahorcado";
         }
 
-
-        System.out.println("Datos Formulario: " + datosFormulario);
-        System.out.println("Datos Sesion: " + datosSesion);
-
+        //Actualizo los datos en en la sesión nueva por los viejos, al igual que en los intentos.
         actualizarDatos(datosSesion, datosFormulario);
-
         actualizarIntentos(datosSesion, datosFormulario);
 
+
+        //Mensaje de victoria
         if (unirPalabra(datosFormulario).equals(datosFormulario.getPalabraOculta())){
             String mensajeVictoria = "¡Enhorabuena! ¡Has ganado! ¿Quieres volver a jugar?";
             model.addAttribute("mensajeVictoria", mensajeVictoria);
             model.addAttribute("volverJugar", "Volver a jugar");
             return "ahorcado";
         } else if(datosFormulario.getIntentosRestantes() == 0){
+            //Mensaje de derrota
             String mensajeDerrota = "Qué mal, has perdido. ¿Quieres volver a jugar?";
             model.addAttribute("mensajeDerrota", mensajeDerrota);
             model.addAttribute("volverJugar", "Volver a jugar");
@@ -81,11 +84,12 @@ public class PrincipalController {
         }
 
 
-
+        //Vuelvo a guardar la sesión
         session.setAttribute("datos", datosFormulario);
         return "redirect:/ahorcado";
     }
 
+    //Llego aquí después de darle al enlace de volver a jugar, para borrar la sesión y empezar a jugar desde cero
     @GetMapping("/volver-jugar")
     public String volverJugar(HttpSession session) {
         session.invalidate();
@@ -98,10 +102,12 @@ public class PrincipalController {
         }
 
         if (sesionNueva == null) {
-            return; // Si no hay nuevos datos, no hacemos nada
+            return; // Si no hay nuevos datos, no se hace nada
         }
+        //Establezco la palabra oculta a adivinar
         sesionNueva.setPalabraOculta(sesionVieja.getPalabraOculta());
 
+        //Voy rellenando las letras que se van adivinando de esta forma
         if (sesionNueva.getUltimaLetra().length() == 1){
             sesionNueva.setPalabraAdivinar(construccionPalabra(sesionVieja.getPalabraOculta(), sesionVieja.getPalabraAdivinar(), sesionNueva.getUltimaLetra()));
         } else{
