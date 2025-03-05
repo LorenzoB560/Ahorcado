@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Controller
 public class PrincipalController {
@@ -47,10 +48,15 @@ public class PrincipalController {
         }
 
 
-        if (datosSesion.getLetrasProbadas().contains(datosFormulario.getUltimaLetra().toLowerCase())) {
+        if (datosSesion.getLetrasProbadas().contains(quitarAcentos(datosFormulario.getUltimaLetra().toLowerCase()))) {
             model.addAttribute("letraRepetida", "Esta letra ya ha sido introducida. Elija otra.");
             actualizarDatos(datosSesion, datosFormulario);
+            return "ahorcado";
+        }
 
+        if (!validarLetra(datosFormulario.getUltimaLetra())) {
+            model.addAttribute("formatoIncorrecto", "Valor introducido no válido");
+            actualizarDatos(datosSesion, datosFormulario);
             return "ahorcado";
         }
 
@@ -60,7 +66,7 @@ public class PrincipalController {
 
         actualizarDatos(datosSesion, datosFormulario);
 
-        actualizarIntentos(datosSesion, datosFormulario, model);
+        actualizarIntentos(datosSesion, datosFormulario);
 
         if (unirPalabra(datosFormulario).equals(datosFormulario.getPalabraOculta())){
             String mensajeVictoria = "¡Enhorabuena! ¡Has ganado! ¿Quieres volver a jugar?";
@@ -103,8 +109,8 @@ public class PrincipalController {
         }
 
         ArrayList<String> lista = sesionVieja.getLetrasProbadas();
-        String letra = sesionNueva.getUltimaLetra().toLowerCase();
-        if (!lista.contains(letra) && letra.length()==1) {
+        String letra = quitarAcentos(sesionNueva.getUltimaLetra().toLowerCase());
+        if (!lista.contains(letra) && letra.length()==1 && validarLetra(letra)) {
             lista.add(letra);
         }
         sesionNueva.setLetrasProbadas(lista);
@@ -113,14 +119,14 @@ public class PrincipalController {
         sesionNueva.setIntentosRestantes(sesionVieja.getIntentosRestantes());
 
     }
-    private void actualizarIntentos(Datos sesionVieja, Datos sesionNueva, Model model) {
-        Map<String, Object> datos = new HashMap<>();
+    private void actualizarIntentos(Datos sesionVieja, Datos sesionNueva) {
 
         int intentos = sesionVieja.getNumeroIntentos();
         sesionNueva.setNumeroIntentos(intentos >= 0 ? intentos + 1 : intentos);
 
 
-        if (!sesionVieja.getPalabraOculta().contains(sesionNueva.getUltimaLetra().toLowerCase())) {
+        if (!quitarAcentos(sesionVieja.getPalabraOculta().toLowerCase())
+                .contains(quitarAcentos(sesionNueva.getUltimaLetra().toLowerCase()))) {
             sesionNueva.setIntentosRestantes(sesionVieja.getIntentosRestantes() >= 0 ? sesionVieja.getIntentosRestantes() - 1 : intentos);
         } else{
             sesionNueva.setIntentosRestantes(sesionVieja.getIntentosRestantes());
@@ -167,5 +173,24 @@ public class PrincipalController {
     private String unirPalabra(Datos datosFormulario){
         char[] palabraDividida = datosFormulario.getPalabraAdivinar().toCharArray();
         return new String(palabraDividida).replaceAll(" ", "");
+    }
+
+    private boolean validarLetra(String s){
+        return s.matches("[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]");
+    }
+
+    private static final Pattern ACENTOS = Pattern.compile("[áéíóúüÁÉÍÓÚÜ]");
+    private static final String REEMPLAZOS = "aeiouuAEIOUU";
+    private String quitarAcentos(String texto) {
+        if (texto == null){
+            return null;
+        }
+        StringBuilder sb = new StringBuilder(texto);
+        for (int i = 0; i < sb.length(); i++) {
+            char c = sb.charAt(i);
+            int index = "áéíóúüÁÉÍÓÚÜ".indexOf(c);
+            if (index >= 0) sb.setCharAt(i, REEMPLAZOS.charAt(index));
+        }
+        return sb.toString();
     }
 }

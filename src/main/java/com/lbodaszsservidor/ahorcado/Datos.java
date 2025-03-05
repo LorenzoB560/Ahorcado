@@ -33,10 +33,12 @@ public class Datos {
     private int intentosRestantes;
 
     public String devolverPalabra(){
-            final String API_URL = "http://localhost:9999/palabra-random";
+        final String API_URL = "http://localhost:9999/palabra-random";
 
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(API_URL, String.class);
+        Palabra palabra = restTemplate.getForObject(API_URL, Palabra.class);
+        assert palabra != null;
+        return palabra.getPalabra();
     }
 
 

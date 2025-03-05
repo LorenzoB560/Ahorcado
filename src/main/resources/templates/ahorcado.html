@@ -1,41 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ahorcado</title>
     <link rel="stylesheet" href="/css/estilos.css">
 </head>
 <body>
-    <h1>Juego del ahorcado</h1>
+<div class="container">
+    <h1>Juego del Ahorcado</h1>
+
     <form action="/guardar-ahorcado" method="post" th:object="${datos}">
-        <h2>Palabra:</h2>
-        <div th:text="${datos.getPalabraAdivinar()}"></div>
-
-        <label for="letra">Letra a introducir:</label>
-
-        <input type="text" name="letra" id="letra"
-               th:field="*{ultimaLetra}"
-               th:if="${mensajeVictoria == null and mensajeDerrota == null}">
-
-
-        <div th:each="error : ${#fields.errors('ultimaLetra')}" th:text="${error}" class="error"></div>
-        <p th:text="${letraRepetida}" class="error"></p>
-        <p th:text="${mensajeVictoria}" class="success"></p>
-        <p th:text="${mensajeDerrota}" class="error"></p>
-        <a th:text="${volverJugar}" href="volver-jugar"></a>
-
-        <img src="/img/ahorcado.jpg" class="ahorcado"
-             th:style="|object-position: calc((${datos.getIntentosRestantes()} * -78px)) 0; width: 78px; height: 92px; object-fit: none;|" alt="Ahorcado">
-        <br> <br>
-        <fieldset>
-            <p>Palabra oculta: <strong><span th:text="${datos.getPalabraOculta()}"></span></strong></p>
-            <p>Ultima letra recibida: <span th:text="${datos.getUltimaLetra()}"></span></p>
-            <p>Letras ya probadas: <span th:text="${datos.getLetrasProbadas().toString()}"></span></p>
-            <p>Número de intentos: <span th:text="${datos.getNumeroIntentos()}"></span></p>
-            <p>Numero de intentos fallidos que quedan: <span th:text="${datos.getIntentosRestantes()}"></span></p>
-
+        <fieldset class="game-info">
+            <legend>Palabra Secreta</legend>
+            <p class="palabra"><strong th:text="${datos.getPalabraAdivinar()}"></strong></p>
         </fieldset>
-        <input type="submit"></input>
+
+        <fieldset class="input-section">
+            <legend>Introduce una Letra</legend>
+            <label for="ultimaLetra">Letra:</label>
+            <input type="text" name="ultimaLetra" id="ultimaLetra"
+                   th:value="''"
+                   autofocus>
+        </fieldset>
+
+        <div class="messages">
+            <p th:each="error : ${#fields.errors('ultimaLetra')}" th:text="${error}" class="error"></p>
+            <p th:text="${letraRepetida}" class="error"></p>
+            <p th:text="${formatoIncorrecto}" class="error"></p>
+            <p th:text="${mensajeVictoria}" class="success"></p>
+            <p th:text="${mensajeDerrota}" class="error"></p>
+        </div>
+
+        <div class="ahorcado-container">
+            <img src="/img/ahorcado.jpg" class="ahorcado"
+                 th:style="|object-position: calc((${datos.getIntentosRestantes()} * -78px)) 0; width: 78px; height: 92px; object-fit: none;|"
+                 alt="Ahorcado">
+        </div>
+
+        <fieldset class="stats">
+            <legend>Información del Juego</legend>
+            <p>Palabra oculta: <strong><span th:text="${datos.getPalabraOculta()}"></span></strong></p>
+            <p>Última letra recibida: <span th:text="${datos.getUltimaLetra()}"></span></p>
+            <p>Letras probadas: <span th:text="${datos.getLetrasProbadas().toString()}"></span></p>
+            <p>Intentos totales: <span th:text="${datos.getNumeroIntentos()}"></span></p>
+            <p>Intentos restantes: <span th:text="${datos.getIntentosRestantes()}"></span></p>
+        </fieldset>
+
+        <div class="actions">
+            <input type="submit" value="Enviar" th:if="${mensajeVictoria == null and mensajeDerrota == null}">
+            <a th:text="${volverJugar}" href="volver-jugar" class="btn" th:if="${mensajeVictoria != null or mensajeDerrota != null}">Volver a jugar</a>
+        </div>
     </form>
+</div>
 </body>
 </html>

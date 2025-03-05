@@ -1,17 +1,93 @@
-.error{
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    text-align: center;
+    padding: 20px;
+}
+
+.container {
+    width: 400px;
+    background: #ffffff;
+    padding: 20px;
+    margin: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Titulos */
+h1 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Formulario */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+fieldset {
+    width: 90%;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+legend {
+    font-weight: bold;
+    color: #555;
+}
+
+/* Input */
+.input-section input {
+    padding: 8px;
+    font-size: 16px;
+    text-align: center;
+    width: 50px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Imagen del ahorcado */
+.ahorcado-container {
+    margin: 15px 0;
+}
+
+.ahorcado {
+    display: block;
+    margin: auto;
+}
+
+/* Mensajes de error y éxito */
+.error {
     color: red;
     font-weight: bold;
 }
-.success{
+
+.success {
     color: limegreen;
     font-weight: bold;
 }
-.recorte {
-    width: 100px;  /* Ancho del recorte */
-    height: 300px; /* Alto del recorte */
-    object-fit: none;
-    overflow: hidden;
+
+/* Botones */
+.actions {
+    margin-top: 15px;
 }
 
+input[type="submit"], .btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 5px;
+}
 
-
+input[type="submit"]:hover, .btn:hover {
+    background-color: #0056b3;
+}
